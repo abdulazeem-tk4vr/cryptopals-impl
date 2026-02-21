@@ -1,50 +1,30 @@
-// Rolling window that stores at most capacity readings per sensor.
-struct RollingWindow<T> {
-    capacity: usize,
-    items: Vec<T>,
-}
+use std::collections::HashSet;
 
-impl<T> RollingWindow<T> {
-    fn new(capacity: usize) -> Self {
-        RollingWindow { capacity, items: Vec::new() }
-    }
+pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
+    let mut words: HashSet<&'a str> = HashSet::new();
 
-    // Push a new reading and drop the oldest when capacity is exceeded
-    fn push(&mut self, value: T) {
-        self.items.push(value);
-        if self.items.len()> self.capacity {
-            self.items.remove(0);
+    let word = word.to_lowercase();
+    let mut sorted_word: Vec<char> = word.chars().collect();
+    sorted_word.sort();
+
+    // let mut word : String = sorted_word.into_iter().collect();
+    // let word : &str = &word;
+
+    for possible in possible_anagrams {
+        let p = possible.to_lowercase();
+
+        if p == word {
+            continue;
         }
-        // todo!("Maintain capacity by removing the oldest element when necessary");
+        let mut p_sorted_word: Vec<char> = p.chars().collect();
+        p_sorted_word.sort();
+
+        // let mut p_word : String = p_sorted_word.into_iter().collect();
+
+        if sorted_word == p_sorted_word {
+            words.insert(possible);
+        }
     }
 
-    // Return how many readings are currently stored
-    fn len(&self) -> usize {
-        self.items.len()
-    }
-
-    // Return the newest reading without moving it out
-    fn latest(&self) -> Option<&T> {
-        self.items.last()
-    }
-
-    // Return an iterator over the stored values from oldest to newest
-    fn iter(&self) -> impl Iterator<Item = &T> {
-        self.items.iter()
-    }
-}
-
-pub fn generic_rolling_window() {
-    let mut window = RollingWindow::new(3);
-    window.push("north");
-    window.push("east");
-    window.push("south");
-    window.push("west");
-
-    println!("Length: {}", window.len());
-    println!("Latest: {:?}", window.latest());
-
-    for direction in window.iter() {
-        println!("Remaining direction: {}", direction);
-    }
+    words
 }
